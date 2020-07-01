@@ -24,7 +24,8 @@ static int is_obsmsg(int msg)
     return (1001<=msg&&msg<=1004)||(1009<=msg&&msg<=1012)||
            (1071<=msg&&msg<=1077)||(1081<=msg&&msg<=1087)||
            (1091<=msg&&msg<=1097)||(1101<=msg&&msg<=1107)||
-           (1111<=msg&&msg<=1117)||(1121<=msg&&msg<=1127);
+           (1111<=msg&&msg<=1117)||(1121<=msg&&msg<=1127)||
+           (msg==1230);
 }
 /* test navigataion data message ---------------------------------------------*/
 static int is_navmsg(int msg)
@@ -202,7 +203,20 @@ static void write_obs(gtime_t time, stream_t *str, strconv_t *conv)
             if (!gen_rtcm2(&conv->out,conv->msgs[i],i!=j)) continue;
         }
         else if (conv->otype==STRFMT_RTCM3) {
-            if (!gen_rtcm3(&conv->out,conv->msgs[i],i!=j)) continue;
+            if (!gen_rtcm3(&conv->out,conv->msgs[i],i!=j))
+            {
+                if(conv->msgs[i] == 1230)
+                {
+                    /* insert 1230 here */
+                    static unsigned char buffer_rtcm[10] = { 0xD3, 0x00, 0x04, 0x4C, 0xE0, 0x00, 0x80, 0xED, 0xED, 0xD6 };
+                    memcpy(conv->out.buff, buffer_rtcm, 10);
+                    conv->out.nbyte = 10;
+                } 
+                else
+                {
+                    continue;
+                }
+            }
         }
         else continue;
         
