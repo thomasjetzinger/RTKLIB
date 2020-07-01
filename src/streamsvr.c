@@ -277,6 +277,7 @@ static void write_obs(gtime_t time, stream_t *str, strconv_t *conv)
                 static unsigned char buffer_rtcm[10] = { 0xD3, 0x00, 0x04, 0x4C, 0xE0, 0x00, 0x80, 0xED, 0xED, 0xD6 };
                 memcpy(conv->out.buff, buffer_rtcm, 10);
                 conv->out.nbyte = 10;
+                strwrite(str,conv->out.buff,conv->out.nbyte);
             }             
             else { /* write rtcm3 msm to stream */
                 write_rtcm3_msm(str,&conv->out,conv->msgs[i],i!=j);
