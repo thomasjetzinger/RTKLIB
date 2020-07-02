@@ -34,8 +34,7 @@ static int is_obsmsg(int msg)
     return (1001<=msg&&msg<=1004)||(1009<=msg&&msg<=1012)||
            (1071<=msg&&msg<=1077)||(1081<=msg&&msg<=1087)||
            (1091<=msg&&msg<=1097)||(1101<=msg&&msg<=1107)||
-           (1111<=msg&&msg<=1117)||(1121<=msg&&msg<=1127)||
-           (msg==1230);
+           (1111<=msg&&msg<=1117)||(1121<=msg&&msg<=1127);
 }
 /* test navigataion data message ---------------------------------------------*/
 static int is_navmsg(int msg)
@@ -46,7 +45,7 @@ static int is_navmsg(int msg)
 /* test station info message -------------------------------------------------*/
 static int is_stamsg(int msg)
 {
-    return msg==1005||msg==1006||msg==1007||msg==1008||msg==1033;
+    return msg==1005||msg==1006||msg==1007||msg==1008||msg==1033||msg==1230;
 }
 /* test time interval --------------------------------------------------------*/
 static int is_tint(gtime_t time, double tint)
@@ -270,15 +269,7 @@ static void write_obs(gtime_t time, stream_t *str, strconv_t *conv)
             if (conv->msgs[i]<=1012) {
                 if (!gen_rtcm3(&conv->out,conv->msgs[i],i!=j)) continue;
                 strwrite(str,conv->out.buff,conv->out.nbyte);
-            }   
-            else if(conv->msgs[i] == 1230)
-            {
-                /* insert 1230 here */
-                static unsigned char buffer_rtcm[10] = { 0xD3, 0x00, 0x04, 0x4C, 0xE0, 0x00, 0x80, 0xED, 0xED, 0xD6 };
-                memcpy(conv->out.buff, buffer_rtcm, 10);
-                conv->out.nbyte = 10;
-                strwrite(str,conv->out.buff,conv->out.nbyte);
-            }             
+            }              
             else { /* write rtcm3 msm to stream */
                 write_rtcm3_msm(str,&conv->out,conv->msgs[i],i!=j);
             } 
@@ -389,7 +380,15 @@ static void write_sta_cycle(stream_t *str, strconv_t *conv)
             if (!gen_rtcm2(&conv->out,conv->msgs[i],0)) continue;
         }
         else if (conv->otype==STRFMT_RTCM3) {
-            if (!gen_rtcm3(&conv->out,conv->msgs[i],0)) continue;
+            if(conv->msgs[i] == 1230)
+            {
+                /* insert 1230 here */
+                static unsigned char buffer_rtcm[10] = { 0xD3, 0x00, 0x04, 0x4C, 0xE0, 0x00, 0x80, 0xED, 0xED, 0xD6 };
+                memcpy(conv->out.buff, buffer_rtcm, 10);
+                conv->out.nbyte = 10;
+                strwrite(str,conv->out.buff,conv->out.nbyte);
+            }  
+            else if (!gen_rtcm3(&conv->out,conv->msgs[i],0)) continue;
         }
         else continue;
         
