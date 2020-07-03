@@ -383,9 +383,9 @@ static void write_sta_cycle(stream_t *str, strconv_t *conv)
             if(conv->msgs[i] == 1230)
             {
                 /* insert 1230 here */
-                static unsigned char buffer_rtcm[10] = { 0xD3, 0x00, 0x04, 0x4C, 0xE0, 0x00, 0x80, 0xED, 0xED, 0xD6 };
-                memcpy(conv->out.buff, buffer_rtcm, 10);
-                conv->out.nbyte = 10;
+                static unsigned char buffer_rtcm[18] = { 0xD3,0x00,0x0C,0x4C,0xEE,0x32,0x0F,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x45,0x5F,0x24};
+                memcpy(conv->out.buff, buffer_rtcm, 18);
+                conv->out.nbyte = 18;
                 strwrite(str,conv->out.buff,conv->out.nbyte);
             }  
             else if (!gen_rtcm3(&conv->out,conv->msgs[i],0)) continue;
